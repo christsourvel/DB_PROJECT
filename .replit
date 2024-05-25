@@ -1,0 +1,5 @@
+entrypoint = "main.sql"
+run = "sqlite3 --init main.sql"
+
+[nix]
+channel = "stable-23_11"
