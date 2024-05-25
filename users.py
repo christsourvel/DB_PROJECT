@@ -4,7 +4,7 @@ import mysql.connector
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="9999",
+    password="6969",
     database="cook_show"
 )
 
