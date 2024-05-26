@@ -1,6 +1,6 @@
 -- 3.6 , 3.8 force indexes
 
---3.6
+-- 3.6
 CREATE INDEX idx_is_tagged_recipe_id_tag_id ON is_tagged (recipe_id, tag_id);
 CREATE INDEX idx_score_recipe_id_episode_id ON score (recipe_id, episode_id);
 
