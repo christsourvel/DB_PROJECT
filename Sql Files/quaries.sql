@@ -248,7 +248,7 @@ WHERE
     );
 
 -- 3.8.
-CCREATE OR REPLACE VIEW most_utensils_num AS
+CREATE OR REPLACE VIEW most_utensils_num AS
 SELECT 
     e.episode_id, 
     COUNT(r.utensil_id) AS equipment_count
