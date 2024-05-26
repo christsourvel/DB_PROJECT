@@ -248,7 +248,7 @@ WHERE
     );
 
 -- 3.8.
-CREATE OR REPLACE VIEW most_utensils_num AS
+CCREATE OR REPLACE VIEW most_utensils_num AS
 SELECT 
     e.episode_id, 
     COUNT(r.utensil_id) AS equipment_count
@@ -263,7 +263,7 @@ ORDER BY
 LIMIT 1;
 
 -- 3.9
-CREATE OR avg_carbohudrates AS
+CREATE O REPLACE VIEWR avg_carboyudrates AS
 SELECT
     e.season,
     AVG(i.carbs_per_100) AS avg_carbohydrates
