@@ -248,7 +248,7 @@ WHERE
     );
 
 -- 3.8.
-REATE OR REPLACE VIEW most_utensils_num AS
+CREATE OR REPLACE VIEW most_utensils_num AS
 SELECT 
     e.episode_id, 
     COUNT(r.utensil_id) AS equipment_count
@@ -327,7 +327,7 @@ WHERE
     year1_count = year2_count;
 
 -- 3.11
-CCREATE OR REPLACE VIEW top_judges AS
+CREATE OR REPLACE VIEW top_judges AS
 SELECT 
     cj.name AS judge_name,
     cc.name AS chef_name,

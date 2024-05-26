@@ -1,4 +1,4 @@
-USE cook_show;
+    USE cook_show;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -166,7 +166,7 @@ CREATE TABLE is_made (
 CREATE TABLE ingredients (
     ingredients_id INTEGER UNSIGNED,
     name VARCHAR(20) NOT NULL,
-    quantity INTEGER NOT NULL,
+    quantity varchar(50) NOT NULL,
     calories INTEGER NOT NULL,
     carbs_per_100 INTEGER NOT NULL,
     fat_per_100 INTEGER NOT NULL,
@@ -177,8 +177,7 @@ CREATE TABLE ingredients (
     PRIMARY KEY (ingredients_id),
     FOREIGN KEY (food_group_id)
         REFERENCES food_groups (food_group_id),
-    CONSTRAINT quantity CHECK (quantity > 0),
-    CONSTRAINT calories CHECK (calories > 0),
+    CONSTRAINT calories CHECK (calories >= 0),
     CONSTRAINT carbs_per_100 CHECK (carbs_per_100 >= 0),
     CONSTRAINT fat_per_100 CHECK (fat_per_100 >= 0),
     CONSTRAINT protein_per_100 CHECK (protein_per_100 >= 0)
@@ -203,7 +202,7 @@ CREATE TABLE nutritional_info (
     carbs_per_serving INTEGER NOT NULL,
     calories_per_serving INTEGER,
     PRIMARY KEY (nutritional_info_id),
-    CONSTRAINT calories_per_serving CHECK (calories_per_serving > 0),
+    CONSTRAINT calories_per_serving CHECK (calories_per_serving >= 0),
     CONSTRAINT carbs_per_serving CHECK (carbs_per_serving >= 0),
     CONSTRAINT fat_per_serving CHECK (fat_per_serving >= 0),
     CONSTRAINT protein_per_serving CHECK (protein_per_serving >= 0),
@@ -330,7 +329,14 @@ CREATE TABLE users (
     role ENUM('admin', 'cook') NOT NULL
 );
 
-
+CREATE INDEX idx_cook_name_surname ON cook(name, surname);
+CREATE INDEX idx_score_cook_id ON score(cook_id);
+CREATE INDEX idx_score_recipe_id ON score(recipe_id);
+CREATE INDEX idx_recipe_national_cuisine ON recipe(national_cuisine);
+CREATE INDEX idx_episode_season ON episode(season);
+CREATE INDEX idx_cook_experience ON cook(experience);
+CREATE INDEX idx_score_final_score ON score(final_score);
+CREATE INDEX idx_participates_in_role ON participates_in(role);
 
 
 

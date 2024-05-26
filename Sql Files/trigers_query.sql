@@ -11,34 +11,58 @@ INNER JOIN (
 SET r.label_id = t.label_id;
 
 -- Trigers
-DELIMITER //
-CREATE TRIGGER calculate_calories_per_serving
-AFTER INSERT ON consists_of
-FOR EACH ROW
-BEGIN
-    DECLARE total_calories_per_100 INT;
-    DECLARE num_portions INT;
+    DELIMITER //
 
-    -- Calculate the sum of (calories * quantity / 100) for the recipe
-    SELECT SUM(i.calories * (i.quantity / 100))
-    INTO total_calories_per_100
-    FROM ingredients i
-    JOIN consists_of c ON i.ingredients_id = c.ingredients_id
-    WHERE c.recipe_id = NEW.recipe_id;
+    CREATE TRIGGER calculate_calories_per_serving AFTER INSERT ON consists_of
+    FOR EACH ROW
+    BEGIN
+        DECLARE total_calories_per_100 INT;
+        DECLARE num_portions INT;
+        DECLARE ingredient_quantity VARCHAR(255); -- Adjust the size as needed
+        DECLARE is_quantity_numeric INT;
 
-    -- Get the number of portions for the recipe
-    SELECT portions
-    INTO num_portions
-    FROM recipe
-    WHERE recipe_id = NEW.recipe_id;
+        -- Get the quantity from the ingredients table
+        SELECT quantity
+        INTO ingredient_quantity 
+        FROM ingredients 
+        WHERE ingredients_id = NEW.ingredients_id;
 
-    -- Calculate the calories_per_serving
-    UPDATE nutritional_info ni
-    SET ni.calories_per_serving = total_calories_per_100 / num_portions
-    WHERE ni.recipe_id = NEW.recipe_id;
-END//
+        -- Check if quantity is numeric (includes numbers)
+        SELECT IF(ingredient_quantity REGEXP '^[0-9]+$', 1, 0) INTO is_quantity_numeric; 
 
-DELIMITER //
+        -- Calculate calories only if quantity is numeric
+        IF is_quantity_numeric = 1 THEN
+
+            -- Calculate the sum of (calories * quantity / 100) for the recipe
+            SELECT SUM(i.calories * (i.quantity / 100)) 
+            INTO total_calories_per_100 
+            FROM ingredients i 
+            JOIN consists_of c ON i.ingredients_id = c.ingredients_id 
+            WHERE c.recipe_id = NEW.recipe_id;
+
+            -- Get the number of portions for the recipe
+            SELECT portions 
+            INTO num_portions 
+            FROM recipe 
+            WHERE recipe_id = NEW.recipe_id;
+
+            -- Calculate the calories_per_serving
+            UPDATE nutritional_info ni 
+            SET ni.calories_per_serving = total_calories_per_100 / num_portions 
+            WHERE ni.recipe_id = NEW.recipe_id;
+
+        ELSE -- Quantity is not numeric, set calories_per_serving to 0
+
+            UPDATE nutritional_info ni 
+            SET ni.calories_per_serving = 0
+            WHERE ni.recipe_id = NEW.recipe_id;
+
+        END IF;
+
+    END//
+
+    DELIMITER ;
+
 
 DELIMITER //
 CREATE TRIGGER calculate_cook_age BEFORE INSERT ON cook
