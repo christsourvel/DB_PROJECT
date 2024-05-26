@@ -263,7 +263,7 @@ ORDER BY
 LIMIT 1;
 
 -- 3.9
-CREATE O REPLACE VIEWR avg_carboyudrates AS
+CREATE OR REPLACE VIEW avg_carbohydrates AS
 SELECT
     e.season,
     AVG(i.carbs_per_100) AS avg_carbohydrates
