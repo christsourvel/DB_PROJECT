@@ -1,4 +1,4 @@
---1st trigger
+--1st trigger done
 DROP TRIGGER IF EXISTS check_tag_limit;
 DELIMITER //
 
@@ -8,25 +8,21 @@ FOR EACH ROW
 BEGIN
   DECLARE tag_count INT;
 
-  -- Count the number of tags already associated with the recipe
+ 
   SELECT COUNT(*)
   INTO tag_count
   FROM is_tagged
   WHERE recipe_id = NEW.recipe_id;
 
-  -- Check if adding the new tag would exceed the limit
+  
   IF tag_count >= 3 THEN
     SIGNAL SQLSTATE '45000'
     SET MESSAGE_TEXT = 'Cannot add more than 3 tags to a recipe';
   END IF;
 END;
-// 
+// DELIMITER ;
 
-    
-
-DELIMITER ;
-
--- Create trigger calories
+-- Create trigger calories done
 DELIMITER //
 
 DROP TRIGGER IF EXISTS calculate_calories_per_serving//
@@ -65,7 +61,7 @@ FROM recipe r
 JOIN nutritional_info ni ON r.recipe_id = ni.recipe_id
 WHERE r.recipe_id = 1;
 
--- CANT PARTICIPATE 4 TIMES IN A ROW
+-- CANT PARTICIPATE 4 TIMES IN A ROW done
 DELIMITER $$
 
 CREATE TRIGGER check_chef_participation
@@ -76,7 +72,6 @@ BEGIN
     DECLARE last_episode2 INT;
     DECLARE last_episode3 INT;
 
-    -- Get the last three episodes the chef participated in
     SELECT episode_id INTO last_episode1
     FROM participates_in
     WHERE cook_id = NEW.cook_id
@@ -95,7 +90,6 @@ BEGIN
     ORDER BY episode_id DESC
     LIMIT 2, 1;
 
-    -- Check if the chef participated in the last three episodes consecutively
     IF last_episode1 IS NOT NULL AND last_episode2 IS NOT NULL AND last_episode3 IS NOT NULL THEN
         IF (SELECT season FROM episode WHERE episode_id = last_episode1) = (SELECT season FROM episode WHERE episode_id = last_episode2)
         AND (SELECT season FROM episode WHERE episode_id = last_episode2) = (SELECT season FROM episode WHERE episode_id = last_episode3)
@@ -108,7 +102,7 @@ END $$
 DELIMITER ;
 
 
---(3) Basic Ingredients Check
+--(3) Basic Ingredients Check done
 DELIMITER //
 DROP TRIGGER IF EXISTS enforce_one_basic_ingredient;
 CREATE TRIGGER enforce_one_basic_ingredient
@@ -126,7 +120,7 @@ END;
 //
 DELIMITER ;
 
---Serially Test Trigger
+--Serially Test Trigger done
 DELIMITER $$
 DROP TRIGGER IF EXISTS check_steps_order;
 CREATE TRIGGER check_steps_order
@@ -167,7 +161,7 @@ INSERT INTO is_made (recipe_id, steps_id) VALUES (2000, 4); -- Should raise an e
 INSERT INTO is_made (recipe_id, steps_id) VALUES (2000, 5); -- Should raise an exception
 INSERT INTO is_made (recipe_id, steps_id) VALUES (2000, 6); -- Should raise an exception
 
--- (4) calculation of cook age
+-- (4) calculation of cook age done
 DELIMITER //
 DROP TRIGGER IF EXISTS calculate_cook_age;
 CREATE TRIGGER calculate_cook_age BEFORE INSERT ON cook

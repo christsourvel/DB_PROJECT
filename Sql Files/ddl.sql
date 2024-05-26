@@ -303,7 +303,7 @@ CREATE TABLE score (
         REFERENCES cook (cook_id),
     FOREIGN KEY (recipe_id)
         REFERENCES recipe (recipe_id),
-    CONSTRAINT final_score_constraint CHECK (final_score IN (1 , 2, 3, 4, 5))
+    CONSTRAINT final_score_constraint CHECK (final_score IN (3 , 4, 5, 6, 7, 8, 9, 10, 11,12, 13, 14,15))
 );
 
 CREATE TABLE comes_from (
@@ -329,6 +329,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     role ENUM('admin', 'cook') NOT NULL
 );
+
 
 
 

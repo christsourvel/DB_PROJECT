@@ -1,15 +1,16 @@
 USE cook_show;
 
--- QUERY 1: Average Score by Chef
+-- 3.1
+-- Average Score by Chef
 
 CREATE OR REPLACE VIEW avg_score_chef AS
 SELECT c.name AS cook_name, c.surname, AVG(s.final_score) AS average_score
 FROM cook c
 JOIN score s ON c.cook_id = s.cook_id
 GROUP BY c.name, c.surname
-ORDER BY average_score DESC;  -- Order by average score (descending)
+ORDER BY average_score DESC;  
 
--- QUERY 1b: Average Score by National Cuisine
+-- Average Score by National Cuisine
 CREATE OR REPLACE VIEW avg_score_National_Cuisine AS
 SELECT 
     r.national_cuisine, 
@@ -23,7 +24,7 @@ GROUP BY
 ORDER BY 
     average_score DESC;
 
---3.2 
+-- 3.2 
 use cook_show;
 CREATE OR REPLACE VIEW given_pair_participation AS
 WITH pairs AS (
@@ -96,7 +97,8 @@ GROUP BY
 ORDER BY 
     co.national_cuisine,
     co.season;
--- 3.3. Βρείτε τους νέους μάγειρες (ηλικία < 30 ετών) που έχουν τις περισσότερες συνταγές.
+
+-- 3.3. 
 CREATE OR REPLACE VIEW young_cooks AS
 SELECT 
     c.name AS chef_name, 
@@ -105,18 +107,22 @@ SELECT
 FROM 
     cook c
 JOIN 
+    participates_in pi ON c.cook_id = pi.cook_id
+JOIN 
+    episode e ON pi.episode_id = e.episode_id
+JOIN 
     is_cooked_from icf ON c.cook_id = icf.cook_id
 JOIN 
     recipe r ON icf.recipe_id = r.recipe_id
 WHERE 
-    c.age < 30
+    e.season - YEAR(c.birth_date) < 30
 GROUP BY 
     c.name, c.surname
 ORDER BY 
     recipe_count DESC
-LIMIT 10; -- Top 10 young chefs with the most recipes
+LIMIT 10; 
 
--- 3.4. Βρείτε τους μάγειρες που δεν έχουν συμμετάσχει ποτέ σε ως κριτές σε κάποιο επεισόδιο.
+-- 3.4.
 CREATE OR REPLACE VIEW i_never_judge AS 
 SELECT 
     c.name AS chef_name,
@@ -132,7 +138,8 @@ WHERE
         WHERE 
             role = 'judge'
 );
--- 3.5. Ποιοι κριτές έχουν συμμετάσχει στον ίδιο αριθμό επεισοδίων σε διάστημα ενός έτους με περισσότερες από 3 εμφανίσεις;
+
+-- 3.5. 
 CREATE OR REPLACE VIEW same_number_of_judges_in_one_year AS
 SELECT combined_cooks.cook_id, c.name, c.surname, combined_cooks.seasons
 FROM (
@@ -276,7 +283,7 @@ WHERE
     );
 
 -- 3.8. Σε ποιο επεισόδιο χρησιμοποιήθηκαν τα περισσότερα εξαρτήματα (εξοπλισμός);
-CREATE OR REPLACE most_utensils_num AS
+CREATE OR REPLACE VIEW most_utensils_num AS
 SELECT 
     e.episode_id, 
     COUNT(r.utensil_id) AS equipment_count
@@ -291,7 +298,7 @@ ORDER BY
 LIMIT 1;
 
 -- 3.9. Λίστα με μέσο όρο αριθμού γραμμάριων υδατανθράκων στο διαγωνισμό ανά έτος;
-
+CREATE OR avg_carbohudrates AS
 SELECT
     e.season,
     AVG(i.carbs_per_100) AS avg_carbohydrates
@@ -358,23 +365,25 @@ WHERE
 
 -- 3.11. Βρείτε τους top-5 κριτές που έχουν δώσει συνολικά την υψηλότερη βαθμολόγηση σε ένα μάγειρα.
 
-CREATE OR REPLACE VIEW top_5_high_score AS
+CCREATE OR REPLACE VIEW top_judges AS
 SELECT 
-    c.name AS judge_name, 
-    c.surname AS judge_surname,
-    c2.name AS chef_name,
-    c2.surname AS chef_surname,
-    SUM(sc.final_score) AS total_score
+    cj.name AS judge_name,
+    cc.name AS chef_name,
+    SUM(cf.score) AS total_score
 FROM 
-    cook c
+    score s
 JOIN 
-    participates_in pi ON c.cook_id = pi.cook_id AND pi.role = 'judge'
+    comes_from cf ON s.score_triple_id = cf.score_triple_id
 JOIN 
-    score sc ON pi.episode_id = sc.episode_id
+    participates_in pi_judge ON cf.cook_id = pi_judge.cook_id AND pi_judge.role = 'judge'
 JOIN 
-    cook c2 ON sc.cook_id = c2.cook_id
+    participates_in pi_chef ON s.cook_id = pi_chef.cook_id AND pi_chef.role = 'chef'
+JOIN 
+    cook cj ON pi_judge.cook_id = cj.cook_id
+JOIN 
+    cook cc ON s.cook_id = cc.cook_id
 GROUP BY 
-    c.name, c.surname, c2.name, c2.surname
+    cj.name, cc.name
 ORDER BY 
     total_score DESC
 LIMIT 5;

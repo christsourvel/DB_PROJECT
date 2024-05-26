@@ -1,3 +1,4 @@
+--done
 DELIMITER //
 
 DROP TRIGGER IF EXISTS update_recipe_label;
@@ -7,9 +8,9 @@ FOR EACH ROW
 BEGIN
     DECLARE v_label_id INT;
 
-    -- Check if the inserted row has basic_ingredient = true
+    
     IF NEW.basic_ingredient = true THEN
-        -- Find the corresponding label_id
+        
         SELECT l.label_id
         INTO v_label_id
         FROM ingredients i
@@ -18,7 +19,7 @@ BEGIN
         WHERE i.ingredients_id = NEW.ingredients_id
         LIMIT 1;
 
-        -- If a label_id is found, update the recipe table
+        
         IF v_label_id IS NOT NULL THEN
             UPDATE recipe
             SET label_id = v_label_id
@@ -28,3 +29,16 @@ BEGIN
 END$$
 
 DELIMITER // 
+
+
+
+UPDATE recipe r
+INNER JOIN (
+    SELECT recipe_id, MAX(l.label_id) AS label_id
+    FROM consists_of co
+    JOIN ingredients i ON co.ingredients_id = i.ingredients_id
+    JOIN label l ON l.food_group_id = i.food_group_id
+    WHERE co.basic_ingredient = 1
+    GROUP BY recipe_id
+) t ON r.recipe_id = t.recipe_id
+SET r.label_id = t.label_id;
